@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- TODO: Update title of survey (shown in browser) -->
+    <title>Best Officer Study</title>
+    <meta charset="UTF-8">
+
+    <!---- STYLESHEETS ---->
+    <!-- TODO: Add additional css stylesheets used in assets/css -->
+    <link href="https://unpkg.com/jspsych@7.2.3/css/jspsych.css" rel="stylesheet" type="text/css" />
+
+    <link rel="stylesheet" href="assets/css/bootstrap-alart.css">
+    <link rel="stylesheet" href="assets/css/jsPsych-padding.css">
+    <link rel="stylesheet" href="assets/css/jsPsych-text-edits.css">
+    <link rel="stylesheet" href="assets/css/center.css">
+
+    <!-- TODO: Add remote plugin stylesheet for survey plugin (if needed) -->
+    <link rel="stylesheet" href="https://unpkg.com/@jspsych/plugin-survey@0.1.1/css/survey.css">
+
+    <!---- SCRIPTS ---->
+    <script src="https://unpkg.com/jspsych@7.2.3"></script>
+
+    <!-- TODO: Uncomment line below for Pavlovia connector -->
+    <!-- <script src="lib/jspsych-7-pavlovia-2022.1.1.js"></script> -->
+   
+    <!-- TODO: Add additional js scripts used in assets/scripts -->
+    <script src="assets/scripts/groups.js"></script>
+    <script src="assets/scripts/firebase.js"></script>
+    <script src="assets/scripts/jquery-3.6.0.min.js"></script>
+    
+    <!-- TODO: Add remote plugin scipts for ALL objects in the timeline -->
+    <script src="https://cdn.jsdelivr.net/npm/underscore@1.13.1/underscore-umd-min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-browser-check@1.0.1"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.1"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.1"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-image-button-response@1.1.1"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-survey-text@1.1.1"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-survey-html-form@1.0.1"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-survey@0.2.0"></script>
+
+
+</head>
+
+<body></body>
+
+<script>
+    /**
+     * jsPsych script created for the Mind in Society Lab at the University of Michigan
+     * September 2022
+     * 
+     * @author Yuyang Zhong (@yuyang-zhong) for template
+     * @author TODO: NAME for study script
+     * 
+     * This work is licensed under CC-BY-NC-SA 4.0 International (https://creativecommons.org/licenses/by-nc-sa/4.0/)
+     */
+
+    ////////* STUDY SETUP */////////
+    // Initialize jsPsych
+    var jsPsych = initJsPsych({
+        use_webaudio: false
+    });
+
+    // timeline 
+    var timeline = [];
+
+    
+
+    var numOfPairsRC12 = 360;
+
+    var subject_id = jsPsych.data.getURLVariable('PROLIFIC_PID');
+    var study_id = jsPsych.data.getURLVariable('STUDY_ID');
+    var session_id = jsPsych.data.getURLVariable('SESSION_ID');
+
+    jsPsych.data.addProperties({
+        subject_id: subject_id,
+        study_id: study_id,
+        session_id: session_id,
+    });
+
+    var RC_Order = jsPsych.randomization.sampleWithoutReplacement(['ABAB', 'BABA'], 1)[0];
+
+    var group = Math.floor(Math.random() * 20) + 1;
+    var svList = groups[group];
+    jsPsych.data.addProperties({ group: group });
+
+    var imgsRC12 = _.range(1, numOfPairsRC12 + 1);
+    imgsRC12 = imgsRC12.map(function (e) {
+      return [
+        "./img/rcic_cop_1_" + pad(e, 5) + "_ori.png",
+        "./img/rcic_cop_1_" + pad(e, 5) + "_inv.png",
+      ];
+    });
+    imgsRC12 = _.flatten(imgsRC12);
+    var RC_A = imgsRC12.slice(0, half_length);
+    var RC_B = imgsRC12.slice(half_length, imgsRC12.length);
+    RC_A = _.chunk(RC_A, 12);
+    RC_B = _.chunk(RC_B, 12);
+
+    var RC_A_stim = [];
+    RC_A.map(function (e) {
+      RC_A_stim.push({ trialImgs: e });
+    });
+
+    var RC_B_stim = [];
+    RC_B.map(function (e) {
+      RC_B_stim.push({ trialImgs: e });
+    });
+
+    var pavlovia_id = 'c-' + group + '_p-' + subject_id + '_s-' + session_id;
+
+    // TODO: Pavlovia Connector object (uncomment when ready to deploy)
+    // var pavlovia_init = {
+    //     type: jsPsychPavlovia,
+    //     data: {
+    //         task: 'pavlovia-init'
+    //     },
+    //     command: "init"
+    // };
+
+
+    // timeline.push(pavlovia_init);
+     
+
+    // TODO: Add additional study setup trial objects
+
+    var browserCheck = {
+        type: jsPsychBrowserCheck,
+        data: {
+            task: 'browser-check'
+        },
+        minimum_width: 700
+    };
+    timeline.push(browserCheck);
+
+    const consentHTML = `
+        <div style="font-size: 80%; max-width:700px">
+            <h2>Informed Consent</h2><br>
+        
+            <div style="text-align: left">
+            <h3>New Study</h3>
+            <b>STUDY ID/b>
+            <br><hr>
+        
+            <h4>DESCRIPTION</h4>
+            <p>
+                What it's about
+            </p><br>
+        
+            <h4>TIME INVOLVEMENT</h4>
+            <p>Your participation will take approximately __ minutes.</p><br>
+        
+            <h4>RISKS AND BENEFITS</h4>
+            <p>
+                The risks associated with this study are minimal. The benefits which may reasonably be expected to result from this study are none.  We cannot and do not guarantee or promise that you will receive any benefits from this study. 
+            </p><br>
+        
+            <h4>PAYMENTS</h4>
+            <p>You will be paid <b>___</b> for your participation.</p><br>
+        
+            <h4>SUBJECT'S RIGHTS</h4>
+            <p>
+                If you have read this form and have decided to participate in this project, please understand your participation is voluntary and you have the right to withdraw your consent or discontinue participation at any time without penalty or loss of benefits to which you are otherwise entitled.  The alternative is not to participate.  You have the right to refuse to answer particular questions.  
+            </p>
+        
+            <p>
+                Your individual privacy will be maintained in all published and written data resulting from the study. Your responses will be kept confidential: you are given a participant code, and no one, not even the research team, can match that code with your identity. Your collected information may also be shared with other researchers as part of our dataset.
+            </p><br>
+        
+            <h4>CONTACT INFORMATION</h4>
+            <p>
+                Questions: If you have any questions, concerns or complaints about this research, its procedures, risks and benefits, contact the Protocol Director, Nicholas Camp, npcamp@umich.edu, (443) 851-6783.
+            </p>
+        
+            <p>
+                If you have questions about your rights as a research participant, or wish to obtain information, ask questions or discuss any concerns about this study with someone other than the researcher(s), please contact the following:
+                <br><br>
+        
+                University of Michigan<br>
+                Health Sciences and Behavioral Sciences Institutional Review Board
+                (IRB-HSBS)<br>
+                2800 Plymouth Road <br>
+                Building 520, Room 1169 <br>
+                Ann Arbor, MI 48109-2800 <br>
+                Telephone: 734-936-0933 or toll free (866) 936-0933 <br>
+                Fax: 734-936-1852 <br />
+                E-mail: irbhsbs@umich.edu <br>
+            </p>
+        
+            <p>
+                You can also contact the University of Michigan Compliance Hotline at 1-866-990-0111. You may also print this consent form to keep.
+            </p>
+            <br>
+        
+            <div class="alert alert-warning"><b>
+                Do you consent to participate in this study? If you consent to participate in this study, please click “Accept and continue.”
+            </b></div>
+            </div>
+        </div>
+    `
+
+    var consentForm = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: consentHTML,
+        data: {
+            task: 'consent'
+        },
+        choices: ['Decline and exit', 'Accept and continue'],
+    };
+
+    timeline.push(consentForm);
+
+    var preload = {
+        type: jsPsychPreload,
+        auto_preload: true,
+        message: `Please wait while the experiment loads. This should not take longer than a minute.`
+    };
+
+    // Helper function to shuffle array
+    function shuffle(array) {
+        let currentIndex = array.length, randomIndex;
+        while (currentIndex != 0) {
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex--;
+            [array[currentIndex], array[randomIndex]] = [
+                array[randomIndex], array[currentIndex]];
+        }
+        return array;
+    };
+
+    const html_intro1 = `
+        <div class="text-container">
+            <h1>Welcome to the study!</h1>
+            
+            <div class="text-left">
+                <p>In this study, we are interested in who people think should enforce different neighborhoods in Google Street View images. Google Street View takes pictures of streets used for Google Earth and Google Maps. You’ll see Google Street View images of different places and pick the best officer to enforce them.</p>
+            </div>
+        <br>
+    `
+    var intro1 = {
+        type: jsPsychHtmlButtonResponse,
+        data: {
+            task: 'instructions',
+        },
+        choices: ['Next'],
+        stimulus: html_intro1
+    };
+
+    const html_intro2 = `
+        <div class="text-container">
+            <div class="text-left">
+                <p>Please remember that your answers are completely anonymous (we can't trace them back to your name). Please answer as honestly as you can.</p>
+            </div>
+        <br>
+    `
+    var intro2 = {
+        type: jsPsychHtmlButtonResponse,
+        data: {
+            task: 'instructions',
+        },
+        choices: ['Next'],
+        stimulus: html_intro2
+    };
+    /*
+
+    var ready = {
+        type: jsPsychHtmlButtonResponse,
+        data: {
+            task: 'instructions',
+        },
+        stimulus: '<h1 style="color: #dc3545"><b>READY</b></h1>',
+        trial_duration: 750,
+        choices: [],
+    };
+
+    var set = {
+        type: jsPsychHtmlButtonResponse,
+        data: {
+            task: 'instructions',
+        },
+        stimulus: '<h1 style="color: #FFC100"><b>GET SET</b></h1>',
+        trial_duration: 750,
+        choices: [],
+    };
+
+    var go = {
+        type: jsPsychHtmlButtonResponse,
+        data: {
+            task: 'instructions',
+        },
+        stimulus: '<h1 style="color: #28a745"><b>GO!</b></h1>',
+        trial_duration: 750,
+        choices: [],
+    }
+
+    */
+
+
+    ////////* EXPERIMENT */////////
+    // TODO: Add study trials here
+
+    /*
+
+    function trialSVIntro(first = false) {
+        if (first) {
+            var stim = `
+                <div class="text-container">
+                    <h3>In the next few slides, you will be shown a few images taken from a neighborhood.</h3>
+                </div>
+            `;
+        } else {
+            var stim = `
+                <div class="text-container">
+                    <h3>Click next to see a few images taken from the next neighborhood.</h3>
+                </div>
+            `;
+        }
+
+        var trialSVIntro = {
+            type: jsPsychHtmlButtonResponse,
+            stimulus: stim,
+            choices: ['Next']
+        };
+
+        return trialSVIntro;
+    };
+
+    function svTrialGroup(loc) {
+        var group_timeline = [];
+
+        var locList = svList[loc];
+
+        console.log(locList);
+
+        // Helper functions
+        function preambleLoc(locList) {
+            var preambleStr = `
+                <style>
+                    .sv_q.sv_qstn {
+                        align-items: center;
+                        justify-content: center;
+                        text-align: center;
+                    }
+                    .sv_body {
+                        color: #000000;
+                        font-size: 95%;
+                    }
+                    .sv_main .sv_container .sv_body .sv_p_root .sv_q_title {
+                        font-weight: bold;
+                    }
+                    .sv_q_rating_min_text {
+                        min-width: 150px;
+                    }
+                    input.sv_prev_btn {
+                        display: none;
+                    }
+                    .sv_main .sv-action-bar {
+                        justify-content: center;
+                    }
+                    @media (min-width: 700px) {
+                        .sv_main .sv_container .sv_body .sv_p_root table.sv_q_matrix td {
+                        min-width: 5em;
+                        font-size: 80%;
+                        }
+                    }
+                    .sv_main .sv_container .sv_body .sv_p_root table.sv_q_matrix td, .sv_main .sv_container .sv_body .sv_p_root table.sv_q_matrix th {
+                        font-size: 80%;
+                    }
+                </style>
+                
+                <div class="text-conainer">
+                    <p>Take a look at the following neighborhood captured by Google Street View</p>
+                
+                <div style="max-width: 700px; margin: 0 auto;">
+            `
+
+            for (var loc of locList) {
+                preambleStr += `<img src='stimulus/${loc}' width=160 height=100 style="padding: 5px;">`
+            }
+
+            preambleStr += "</div></div>"
+
+            return preambleStr
+        };
+
+        // SV trial
+        function svTrial(img) {
+            var trialSV = {
+                type: jsPsychImageButtonResponse,
+                stimulus: 'stimulus/' + img,
+                trial_duration: 1000,
+                choices: [],
+            }
+            return trialSV
+        };
+
+        var cssRC = "rcimg-12";
+        var imgWidth = 150;
+
+        var RC_bestOfficer = {
+            type: jsPsychSurveyText,
+            timeline_variables: RC_A_stim,
+            data: {
+                task: 'trial',
+                question: 'bestOfficer',
+                tract: loc
+            },
+            preamble: preambleLoc(locList),
+            timeline: [{
+            type: 'html-mouse-response',
+                on_load: function () {
+                    $('.jspsych-content-wrapper').css({ "width": "1100px" });
+                    $('.jspsych-content').css({ "max-width": "100%" });
+                },
+                stimulus: function () {
+                    html = "";
+                    var counter = 0;
+                    jsPsych.timelineVariable('trialImgs', true).map(function (e) {
+                        if (counter %  6 === 0){
+                            html += "<br>"
+                        }
+                        html += "<img class='" + cssRC + "' src='" + e + "' height=140px hspace='5' vspace='2'>";
+                        counter += 1;
+                    });
+                    return html;
+                },
+            }]
+        };
+
+        // set up group timeline
+        for (var img of locList) {
+            group_timeline.push(svTrial(img))
+        }
+        group_timeline.push(RC_bestOfficer)
+        return group_timeline;
+    };
+
+    var half_way = {
+        type: jsPsychHtmlButtonResponse,
+        data: {
+            task: 'half-way'
+        },
+        stimulus: `
+            <h3>You are now half way through the study.</h3>
+            <p>Please take a quick, 15-second break before you continue.</p>
+            <img src='assets/img/countdown-15.gif'>
+            <p>The study will automatically advance forward after the countdown is complete. However, you may click "Next" to advance forward now if you wish.</p>
+        `,
+        choices: ['Next'],
+        trial_duration: 15750
+    };
+
+    */
+    ////////* END OF EXPERIMENT */////////
+
+    /*
+
+    // TODO: Add Demographics Q's here
+    const preambleDemog = `
+        <br>
+        <p>Thank you for your responses. Finally, we’d like to ask you a few questions about yourself.</p>
+        <hr>
+        <br>
+    `;
+
+    function selfDescribe() {
+        a = document.getElementById('self-describe');
+        a.checked = true;
+    };
+
+    const htmlDemogForm1 = `
+        <label for="age">What is your age in years?<br>
+            <input type="number" id="age" name="age" min=18><br><br>
+        </label>
+        
+        <label for="gender">How do you currently describe your gender identity?<br>
+            <div class="text-left" style="max-width:200px; margin:auto;">
+            <label for="female" style="font-size:85%">
+                <input type="radio" id="female" name="gender" value="female">
+                Female
+            </label><br>
+            
+            <label for="male" style="font-size:85%">
+                <input type="radio" id="male" name="gender" value="male">
+                Male
+            </label><br>
+            
+            <label for="nonbinary" style="font-size:85%">
+                <input type="radio" id="nonbinary" name="gender" value="nonbinary">
+                Nonbinary
+            </label><br>
+            
+            <label for="self-describe" onClick=selfDescribe() style="font-size:85%">
+                <input type="radio" id="self-describe" name="gender" value="self-describe">
+                Prefer to self-describe:<br> &nbsp;&nbsp;&nbsp;   
+                <input type="text" id="self-describe" name="gender-self-describe">
+            </label>
+            </div>
+        </label><br><br>
+        
+        <label for="zipcode">What's the zipcode of your current residence?<br>
+            <input type="number" id="zipcode" name="zipcode">
+        </label><br><br>
+    `;
+
+    var demogForm = {
+        type: jsPsychSurveyHtmlForm,
+        data: {
+            task: 'demographics'
+        },
+        preamble: preambleDemog,
+        html: htmlDemogForm1,
+        choices: ['Next'],
+    };
+
+    const demogFormFormat = `
+        <style>
+            div.sv_body {
+                max-width: 700px;
+            }
+            .sv_main.sv_default_css .sv_container {
+                color: #000000;
+            }
+            input.sv_prev_btn {
+                display: none;
+            }
+            .sv_main .sv-action-bar {
+                justify-content: center;
+            }
+        </style>
+    `;
+
+    var demogForm2 = {
+        type: jsPsychSurvey,
+        button_label_finish: "Next",
+        data: {
+            task: 'demographics-list'
+        },
+        pages: [
+            [
+                {
+                    type: 'html',
+                    prompt: demogFormFormat,
+                }, {
+                    type: 'multi-select',
+                    prompt: "Which category best describes you? Select all that apply.",
+                    options: [
+                        'American Indian or Alaska Native',
+                        'Asian or Asian American',
+                        'Black or African American',
+                        'Hispanic, Latino or Spanish Origin',
+                        'Middle Eastern or North African',
+                        'Native Hawaiian or Other Pacific Islander',
+                        'White'
+                    ],
+                    name: 'race-ethnicity',
+                }, {
+                    type: 'multi-choice',
+                    prompt: "What is the highest education you've completed?",
+                    options: [
+                        'Some high school',
+                        'High school diploma or equivalent',
+                        'Some college',
+                        'Associate’s degree',
+                        'Bachelor’s degree',
+                        'Graduate & professional degrees'
+                    ],
+                    name: 'education',
+                },
+            ], [
+                {
+                    type: 'html',
+                    prompt: demogFormFormat,
+                }, {
+                    type: 'multi-choice',
+                    prompt: "How would you describe your politial ideology?",
+                    options: [
+                        "Very Liberal",
+                        "Liberal",
+                        "Moderate",
+                        "Conservative",
+                        "Very Conservative"
+                    ],
+                    name: "ideology",
+                },
+            ], [
+                {
+                    type: 'html',
+                    prompt: demogFormFormat,
+                }, {
+                    type: 'text',
+                    prompt: "How many times during your childhood did you move to a totally new neighborhood or town?",
+                    name: 'num-moves',
+                    textbox_columns: 5,
+                    input_type: 'number'
+                },
+            ], [
+                {
+                    type: 'html',
+                    prompt: demogFormFormat + `
+                        <div class="text-container">
+                            <p style="text-align: left;">
+                                Think of this ladder as representing where people stand in the United States. At the top of the ladder are the people who are the best off – those who have the most money, the most education, and the most respected jobs. At the bottom are the people who are the worst off – those who have the least money, least education, the least respected jobs, or no job. The higher up you are on this ladder, the closer you are to the people at the very top; the lower you are, the closer you are to the people at the very bottom.
+                            </p>
+                            <img src="assets/img/ladder_marked.png" style="max-width: 150px;">
+                        </div>
+                    `,
+                }, {
+                    type: 'likert',
+                    prompt: "Where would you place yourself on this ladder?",
+                    name: 'social-ladder',
+                    likert_scale_min: 1,
+                    likert_scale_max: 10
+                }
+            ]
+        ]
+    };
+
+    */
+
+    /* END OF STUDY */
+
+    /*
+    const debriefHTML = `
+        <h3>Thank you for participating in the study!</h3>
+        
+        <div style="text-align: left; max-width: 700px; font-size: 80%">
+            <p>
+                In this study, we were interested in your impressions of the neighborhoods you saw. Some of the pictures were taken from U.S. census tracts with a large number of households living in poverty, and some were taken from tracts with few households in poverty. We were interested in how you thought about these different spaces. 
+            </p>
+        
+            <p>
+                If you have further questions about the study or your participation, please contact the protocol director at npcamp@umich.edu. 
+            </p>
+        </div>
+    `
+
+    var endSurveyDebrief = {
+        type: jsPsychSurveyText,
+        data: {
+            task: 'end-survey'
+        },
+        preamble: debriefHTML,
+        questions: [
+            {
+                prompt: 'Do you have any comments on the study you’d like to share?',
+                rows: 8,
+                columns: 80
+            }
+        ]
+    };
+
+    var endRedirect = {
+        type: jsPsychHtmlButtonResponse,
+        data: {
+            task: 'end-survey',
+            redirect_link: redirect_link
+        },
+        stimulus: "You've reached the end of the survey. You will be redirected shortly.",
+        trial_duration: 5000,
+        choices: []
+    };
+
+
+    // TODO: Pavlovia Connector object (uncomment when ready to deploy)
+    // var pavlovia_finish = {
+    //     type: jsPsychPavlovia,
+    //     data: {
+    //         task: 'pavlovia-finish'
+    //     },
+    //     command: "finish",
+    //     participantId: // TODO: REPLACE WITH ID
+    // };
+    */
+    ////////* TIMELINE */////////
+    // TODO: Setup timeline
+    timeline.push(preload);
+    timeline.push(intro1);
+    timeline.push(intro2);
+
+    /*var shuffledList = shuffle(Object.keys(svList));
+    shuffledList.splice(shuffledList.length / 2, 0, "half-way");
+
+    var firstLoc = shuffledList[0];
+
+    for (var loc of shuffledList) {
+        if (loc == 'half-way') {
+            timeline.push(half_way);
+        } else {
+            timeline.push(trialSVIntro(loc == firstLoc));
+            timeline.push(ready, set, go);
+            timeline.push(svTrialGroup(loc));
+        }
+    };
+
+    timeline.push(demogForm);
+    timeline.push(demogForm2);
+    timeline.push(endSurveyDebrief);*/
+
+    // TODO: Pavlovia Connector object (uncomment when ready to deploy)
+    // Recommend this object is **BEFORE** the trial to redirect for completion or display code
+    // timeline.push(pavlovia_finish);
+
+    // start the experiment
+    jsPsych.run(timeline);
+</script>
