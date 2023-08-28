@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>last try</title>
+    <script src="https://unpkg.com/jspsych@7.3.3"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-image-button-response@1.1.2"></script>
+
+    <link href="https://unpkg.com/jspsych@7.3.3/css/jspsych.css" rel="stylesheet" type="text/css" />
+  </head>
+  <head>
+    <title>My experiment</title>
+  </head>
+  <body></body>
+  <script>
+    const jsPsych = initJsPsych();
+
+    var timeline = [];
+
+    var welcome = {
+      type:jsPsychHtmlKeyboardResponse,
+      stimulus: 'Welcome to the experiment. Pree any key to begin.'
+    };
+
+
+    var consentForm = {
+      type:jsPsychHtmlButtonResponse,
+      stimulus: 'Inset consentForm here',
+      choices: ['I agree to participate in this study', 'I don\'t agree with this. Exit study'],
+    };
+
+    var primingInstruction = {
+      type: jsPsychHtmlButtonResponse,
+      stimulus: '<p> Write down instruction for priming task here </p>',
+      choices: ['next'],
+      post_trial_gap: 1000,
+    };
+
+    timeline.push(welcome);
+    timeline.push(consentForm);
+    timeline.push(primingInstruction);
+
+
+    var imageFolder = 'assets/img/stimuli/';
+    var numImages = 20;
+
+    // Create priming tasks for each image
+    for (let i = 1; i <= numImages; i++) {
+      var stimulus = imageFolder + i + '.jpg';
+
+      var trial = {
+        type: jsPsychImageButtonResponse,
+        stimulus: stimulus,
+        choices: [], // Specify empty choices array if no response is needed
+        button_html: '', // Remove the button
+        trial_duration: 2000, // Adjust the duration you want to display each image
+      };
+
+      timeline.push(trial);
+    }
+
+    jsPsych.data.addProperties({
+      task: 'priming task slide show'
+    });
+
+    jsPsych.run(timeline);
+</script>
+</html>
+
+
+
+
