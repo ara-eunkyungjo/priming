@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>priming task</title>
+    <title>CONDITIONAL task</title>
     <script src="https://unpkg.com/jspsych@7.3.3"></script>
     <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.2"></script>
     <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.2"></script>
@@ -56,24 +56,34 @@
     timeline.push(primingInstruction);
 
 
-    var imageFolder = 'assets/img/stimuli/';
+    var imageFolderEN = 'assets/img/EN/';
+    var imageFolderJP = 'assets/img/JP/';
     var numImages = 20;
+
+    // Determine the condition for each participant
+    var condition = jsPsych.randomization.sampleWithoutReplacement(['EN', 'JP'], 1)[0];
 
     // Create priming tasks for each image
     var randomizedImageOrder = jsPsych.randomization.shuffle([...Array(numImages).keys()]);
-
-    // Create priming tasks for each image in random order
+    
+    // Create priming tasks for each image in a random order
     for (let i = 0; i < numImages; i++) {
-      var stimulus = imageFolder + randomizedImageOrder[i] + '.jpg';
+        var stimulus;
+        if (condition === "EN") {
+            stimulus = imageFolderEN + randomizedImageOrder[i] + '.jpg';
+        } else if (condition === "JP"){
+            stimulus = imageFolderJP + randomizedImageOrder[i] + '.jpg';
+        }
 
-      var trial = {
-        type: jsPsychImageButtonResponse,
-        stimulus: stimulus,
-        choices: [], // Specify empty choices array if no response is needed
-        button_html: '', // Remove the button
-        trial_duration: 200, // Adjust the duration you want to display each image
-      };
-      timeline.push(trial);
+        var trial = {
+            type: jsPsychImageButtonResponse,
+            stimulus: stimulus,
+            choices: [], // Specify an empty choices array if no response is needed
+            button_html: '', // Remove the button
+            trial_duration: 200, // Adjust the duration you want to display each image
+            data: { condition: condition }
+        };
+        timeline.push(trial);
     }
 
       var primingResp = {
