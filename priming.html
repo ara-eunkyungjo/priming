@@ -1,303 +1,95 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Image Rating Task</title>
-    <!-- Include jsPsych and dependencies -->
-    <script src="https://cdn.jsdelivr.net/npm/underscore@1.13.1/underscore-umd-min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://unpkg.com/@jspsych/plugin-browser-check@1.0.1"></script>
-    <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.1"></script>
-    <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.1"></script>
-    <script src="https://unpkg.com/@jspsych/plugin-image-button-response@1.1.1"></script>
-    <script src="https://unpkg.com/@jspsych/plugin-survey-text@1.1.1"></script>
-    <script src="https://unpkg.com/@jspsych/plugin-survey-html-form@1.0.1"></script>
-    <script src="https://unpkg.com/@jspsych/plugin-survey@0.2.0"></script>
-    <script src="https://unpkg.com/@jspsych/plugin-survey-multi-choice@1.0.0"></script>
-    <script src="https://unpkg.com/@jspsych/plugin-html-slider-response@1.0.0"></script>
+  <head>
+    <title>priming task</title>
+    <script src="https://unpkg.com/jspsych@7.3.3"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.2"></script>
     <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.2"></script>
-    <script src="https://unpkg.com/@jspsych/plugin-survey@0.2.1"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-image-button-response@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-survey-likert@1.1.2"></script>
+    
+    <link href="https://unpkg.com/jspsych@7.3.3/css/jspsych.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body></body>
+  <script>
+    const jsPsych = initJsPsych({
+      default_iti: 250,
+      experiment_width: 800,
+      on_finish: function() {
+        jsPsych.data.get().localSave('csv', 'test_data.csv');
+      }
+    });
 
-    <script src="assets/scripts/jspsych-html-mouse-response.js"></script>
-</head>
+    var subject_id = jsPsych.data.getURLVariable('PROLIFIC_PID');
+    var study_id = jsPsych.data.getURLVariable('STUDY_ID');
+    var session_id = jsPsych.data.getURLVariable('SESSION_ID');
 
-<body>
-    <script>
-
-        // Initialize jsPsych
-        var jsPsych = initJsPsych({
-            use_webaudio: false
-        });
-       
-
-        // timeline
-        var timeline = [];
-        var subject_id = jsPsych.data.getURLVariable('PROLIFIC_PID');
-        var study_id = jsPsych.data.getURLVariable('STUDY_ID');
-        var session_id = jsPsych.data.getURLVariable('SESSION_ID');
-
-        jsPsych.data.addProperties({
+    jsPsych.data.addProperties({
         subject_id: subject_id,
         study_id: study_id,
         session_id: session_id,
-        });
+    });
 
-        // Define your stimuli (image file names)
-        var stimuli = [
-            "1.jpg", "2.jpg", "3.jpg", "4.jpg", "5.jpg",
-            "6.jpg", "7.jpg", "8.jpg", "9.jpg", "10.jpg",
-            "11.jpg", "12.jpg", "13.jpg", "14.jpg", "15.jpg",
-            "16.jpg", "17.jpg", "18.jpg", "19.jpg", "20.jpg",
-            "21.jpg", "22.jpg", "23.jpg", "24.jpg", "25.jpg",
-            "26.jpg", "27.jpg", "28.jpg", "29.jpg", "30.jpg",
-            "31.jpg", "32.jpg", "33.jpg", "34.jpg", "35.jpg",
-            "36.jpg", "37.jpg", "38.jpg", "39.jpg", "40.jpg"
-        ];
+    var timeline = [];
 
-         var shuffledStimuli = jsPsych.randomization.shuffle(stimuli);
-        
-//      var pavlovia_id = 's-' + section + '_p-' + subject_id + '_s-' + session_id;
+    var welcome = {
+      type:jsPsychHtmlKeyboardResponse,
+      stimulus: 'Welcome to the experiment. Press any key to begin.'
+    };
 
-//      var pavlovia_init = {
-//            type: jsPsychPavlovia,
-//          data: {
-//                 task: 'pavlovia-init'
-//          },
-//          command: "init"
-//      };
-
-
-//       timeline.push(pavlovia_init);
-
-
-        var browserCheck = {
-            type: jsPsychBrowserCheck,
-            data: {
-                task: 'browser-check'
-            },
-            minimum_width: 700
-        };
-        timeline.push(browserCheck);
-
-
-
-        const consentHTML = `
-        <div style="font-size: 80%; max-width:700px">
-            <h2>Informed Consent</h2><br>
-
-            <div style="text-align: left">
-            <h3>Reverse Correlation Officer Study</h3>
-            <b>STUDY ID</b>
-            <br><hr>
-
-            <h4>DESCRIPTION</h4>
-            <p>
-                What it's about
-            </p><br>
-
-            <h4>TIME INVOLVEMENT</h4>
-            <p>Your participation will take approximately __ minutes.</p><br>
-
-            <h4>RISKS AND BENEFITS</h4>
-            <p>
-                The risks associated with this study are minimal. The benefits which may reasonably be expected to result from this study are none.  We cannot and do not guarantee or promise that you will receive any benefits from this study.
-            </p><br>
-
-            <h4>PAYMENTS</h4>
-            <p>You will be paid <b>___</b> for your participation.</p><br>
-
-            <h4>SUBJECT'S RIGHTS</h4>
-            <p>
-                If you have read this form and have decided to participate in this project, please understand your participation is voluntary and you have the right to withdraw your consent or discontinue participation at any time without penalty or loss of benefits to which you are otherwise entitled.  The alternative is not to participate.  You have the right to refuse to answer particular questions.
-            </p>
-
-            <p>
-                Your individual privacy will be maintained in all published and written data resulting from the study. Your responses will be kept confidential: you are given a participant code, and no one, not even the research team, can match that code with your identity. Your collected information may also be shared with other researchers as part of our dataset.
-            </p><br>
-
-            <h4>CONTACT INFORMATION</h4>
-            <p>
-                Questions: If you have any questions, concerns or complaints about this research, its procedures, risks and benefits, contact the Protocol Director, Nicholas Camp, npcamp@umich.edu, (443) 851-6783.
-            </p>
-
-            <p>
-                If you have questions about your rights as a research participant, or wish to obtain information, ask questions or discuss any concerns about this study with someone other than the researcher(s), please contact the following:
-                <br><br>
-
-                University of Michigan<br>
-                Health Sciences and Behavioral Sciences Institutional Review Board
-                (IRB-HSBS)<br>
-                2800 Plymouth Road <br>
-                Building 520, Room 1169 <br>
-                Ann Arbor, MI 48109-2800 <br>
-                Telephone: 734-936-0933 or toll free (866) 936-0933 <br>
-                Fax: 734-936-1852 <br />
-                E-mail: irbhsbs@umich.edu <br>
-            </p>
-
-            <p>
-                You can also contact the University of Michigan Compliance Hotline at 1-866-990-0111. You may also print this consent form to keep.
-            </p>
-            <br>
-
-            <div class="alert alert-warning"><b>
-                Do you consent to participate in this study? If you consent to participate in this study, please click “Accept and continue.”
-            </b></div>
-            </div>
-        </div>
-    `
 
     var consentForm = {
-        type: jsPsychHtmlButtonResponse,
-        stimulus: consentHTML,
-        data: {
-            task: 'consent'
-        },
-        choices: ['Decline and exit', 'Accept and continue'],
+      type:jsPsychHtmlButtonResponse,
+      stimulus: 'Insert consentForm here',
+      choices: ['Decline and exit', 'Accept and continue'],
     };
 
+    var primingInstruction = {
+      type: jsPsychHtmlButtonResponse,
+      stimulus: '<p> The images you are gonna see are just random images that I downloaded from internet for this priming task.</br> There are 20 images in total and each images are presented for less than 1 second, not to waste you time.</br> In the original article, a total of 95 images were presented for 5 seconds each. </p>',
+      choices: ['next'],
+      post_trial_gap: 1000,
+    };
+
+    timeline.push(welcome);
     timeline.push(consentForm);
+    timeline.push(primingInstruction);
 
 
+    var imageFolder = 'assets/img/stimuli/';
+    var numImages = 20;
 
-    var preload = {
-        type: jsPsychPreload,
-        auto_preload: true,
-        message: `Please wait while the experiment loads. This should not take longer than a minute.`
-    };
+    // Create priming tasks for each image
+    var randomizedImageOrder = jsPsych.randomization.shuffle([...Array(numImages).keys()]);
 
+    // Create priming tasks for each image in random order
+    for (let i = 0; i < numImages; i++) {
+      var stimulus = imageFolder + randomizedImageOrder[i] + '.jpg';
 
-
-
-
-
-    const html_intro1 = `
-        <div class="text-container">
-            <h1>Welcome to the study!</h1>
-        <br>
-    `
-    var intro1 = {
-        type: jsPsychHtmlButtonResponse,
-        data: {
-            task: 'instructions',
-        },
-        choices: ['Next'],
-        stimulus: html_intro1
-    };
-
-    const html_intro2 = `
-        <div class="text-container">
-            <div class="text-left">
-                <p>Please remember that your answers are completely anonymous (we can't trace them back to your name). Please answer as honestly as you can.</p>
-            </div>
-        <br>
-    `
-    var intro2 = {
-        type: jsPsychHtmlButtonResponse,
-        data: {
-            task: 'instructions',
-        },
-        choices: ['Next'],
-        stimulus: html_intro2
-    };
-
-
-    var ready = {
-        type: jsPsychHtmlButtonResponse,
-        data: {
-            task: 'instructions',
-        },
-        stimulus: '<h1 style="color: #dc3545"><b>READY</b></h1>',
-        trial_duration: 750,
-        choices: [],
-    };
-
-    var set = {
-        type: jsPsychHtmlButtonResponse,
-        data: {
-            task: 'instructions',
-        },
-        stimulus: '<h1 style="color: #FFC100"><b>GET SET</b></h1>',
-        trial_duration: 750,
-        choices: [],
-    };
-
-    var go = {
-        type: jsPsychHtmlButtonResponse,
-        data: {
-            task: 'instructions',
-        },
-        stimulus: '<h1 style="color: #28a745"><b>GO!</b></h1>',
-        trial_duration: 750,
-        choices: [],
+      var trial = {
+        type: jsPsychImageButtonResponse,
+        stimulus: stimulus,
+        choices: [], // Specify empty choices array if no response is needed
+        button_html: '', // Remove the button
+        trial_duration: 200, // Adjust the duration you want to display each image
+      };
+      timeline.push(trial);
     }
 
+      var primingResp = {
+      type: jsPsychSurveyLikert,
+      questions: [
+          {
+            prompt: "Imagine you are in the scenery of images you just saw.</br> How much would you like the scenery?",
+            labels: ["Not at all", "Slightly", "Somewhat", "Quite a bit", "Very much"],
+      }],
+      scale_width: null,
+      required: true,
+      button_label: 'next',
+    };
 
+      timeline.push(primingResp);
 
-
-
-
-        // Create a timeline to display images and collect Likert scale responses
-   
-        
-        for (let i = 0; i < shuffledStimuli.length; i++) {
-            var trialPriming = {
-                type: jsPsychHtmlImageButtonResponse,
-                stimulus: 'assets/img/stimuli/' + shuffledStimuli[i],
-                stimulus_height: 400,
-                stimulus_width: 600,
-                trial_duration: 5000, // 5 seconds
-                choices: [],
-                on_finish: function () {
-                    jsPsych.data.addProperties({ image_number: i + 1 });
-                }
-            };
-            timeline.push(trialPriming);
-
-            // After every 8 images, ask Likert scale questions
-            if ((i + 1) % 8 === 0 && i !== shuffledStimuli.length - 1) {
-                const likertTrial = {
-                    type: jsPsychSurvey,
-                    button_label_finish: "Continue",
-                    pages: [
-                                {type: "html",
-                                prompt: 'How much do you like the pictures you just swa?',
-                                },
-                                {type: "likert-scale",
-                                prompt: "",
-                                options: ['1 (Dislike)', '2', '3', '4', '5 (Like)'], 
-                                required: false
-                                }
-                            ]
-                };
-                timeline.push(likertTrial);
-            }
-        }
-        
-        // Create a timeline for demographic questions
-        var demographics = [
-            {
-                type: jsPsychSurvey,
-                questions: [
-                    {
-                        prompt: 'Please enter your age:',
-                        name: 'age',
-                        required: true,
-                        options: ['1 (Dislike)', '2', '3', '4', '5 (Like)'], 
-                    },
-                    {
-                        prompt: 'Please specify your gender:',
-                        name: 'gender',
-                        required: true,
-                        options: ['1 (Dislike)', '2', '3', '4', '5 (Like)'], 
-                    }
-                ]
-            }
-        ];
-        timeline.push(demographics)
-
-       
-         // start the experiment
-        jsPsych.run(timeline);
-    </script>
-</body>
+    jsPsych.run(timeline);
+</script>
 </html>
