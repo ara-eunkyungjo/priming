@@ -28,7 +28,16 @@
         jsPsych.data.get().localSave('csv', 'test_data.csv');
       }
     });
-    
+      // TODO: Pavlovia Connector object (uncomment when ready to deploy)
+    var pavlovia_init = {
+         type: jsPsychPavlovia,
+         data: {
+             task: 'pavlovia-init'
+         },
+         command: "init"
+     };
+
+    // timeline.push(pavlovia_init);
     // Collect participants data
     var subject_id = jsPsych.data.getURLVariable('PROLIFIC_PID');
     var study_id = jsPsych.data.getURLVariable('STUDY_ID');
@@ -114,7 +123,17 @@
     };
       timeline.push(primingResp);
 
-
+ // TODO: Pavlovia Connector object (uncomment when ready to deploy)
+   var pavlovia_finish = {
+       type: jsPsychPavlovia,
+       data: {
+       task: 'pavlovia-finish'
+       },
+       command: "finish",
+       participantId: 'id' ,  
+      };
+    timeline.push(pavlovia_finish);
+    
     // Run jsPsych timeline
     jsPsych.run(timeline);
 </script>
