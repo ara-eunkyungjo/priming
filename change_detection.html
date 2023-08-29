@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    
+    <meta charset="utf-8">
+
+    <title> __ </title>
+
+    <script> // options & setup
+        // content options
+        var CN = false; // language variable
+        var kid = false; // child version
+        var young = false; // young child version; `kid` must also be true
+        var record = true; // audio response for CA/FD
+        var AREP = true 
+
+        // expt options
+        var onServer = false; // running on langcog server? (vs locally)
+        var studySize = 10 ** 6; // number of .csv data files to save before pausing the study
+        var prolific = false; // running on prolific?
+
+        // expt setup
+        var userLang = navigator.language || navigator.userLanguage;
+        var timenum = Date.now();
+
+        // setup for preload statements
+        //var audio = CN ? ['media/audios/infrastructure/six_M.mp3'] : ['media/audios/infrastructure/six_E.mp3']
+        var images = []
+        var video = [] // gamification videos preloaded later
+
+        //var mic_rec = "<div style='display:block;text-align:center;'>"+
+        //    "<img src='media/images/infrastructure/talking.png' style='width:100px;'/></div>"
+    </script>
+
+    <script src="js/plugins/jspsych/jspsych.js"></script>
+    <script src="js/plugins/konva.js"></script>
+    <script src="js/plugins/choices.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <script src="js/plugins/shuffle.js"></script>
+    <script src="js/plugins/check_browser.js"></script>
+    <script src="js/plugins/jspsych/jspsych-survey-multi-choice.js"></script>
+    <script src="js/plugins/jspsych/jspsych-audio-keyboard-response.js"></script>
+    <script src="js/plugins/jspsych/jspsych-audio-button-response.js"></script>
+    <script src="js/plugins/jspsych/jspsych-audio-check.js"></script>
+    <script src="js/plugins/jspsych/jspsych-circle-label.js"></script>
+    <script src="js/plugins/jspsych/jspsych-consent.js"></script>
+    <script src="js/plugins/jspsych/jspsych-free-sort.js"></script>
+    <script src="js/plugins/jspsych/jspsych-horizon-sticker.js"></script>
+    <script src="js/plugins/jspsych/jspsych-horizon-sticker-practice.js"></script>
+    <script src="js/plugins/jspsych/jspsych-rmts-train.js"></script>
+    <script src="js/plugins/jspsych/jspsych-rmts-test.js"></script>
+    <script src="js/plugins/jspsych/jspsych-html-button-response.js"></script>
+    <script src="js/plugins/jspsych/jspsych-html-keyboard-response.js"></script>
+    <script src="js/plugins/jspsych/jspsych-html-slider-response.js"> </script>
+    <script src="js/plugins/jspsych/jspsych-ebbinghaus.js"></script>
+    <script src="js/plugins/jspsych/jspsych-ebbinghaus-keyboard.js"></script>
+    <script src="js/plugins/jspsych/jspsych-ebbinghaus-keyboard-practice.js"></script>
+    <script src="js/plugins/jspsych/jspsych-free-description-response-practice.js"></script>
+    <script src="js/plugins/jspsych/jspsych-free-description-response.js"></script>
+    <script src='js/plugins/jspsych/jspsych-task-instructions.js'></script>
+    <script src='js/plugins/jspsych/jspsych-task-instructions-audio.js'></script>
+    <script src="js/plugins/jspsych/jspsych-free-sort.js"></script>
+    <script src="js/plugins/jspsych/jspsych-external-html.js"></script>
+    <script src="js/plugins/jspsych/jspsych-instructions.js"></script>
+    <script src="js/plugins/jspsych/jspsych-image-button-response.js"></script>
+    <script src='js/plugins/jspsych/jspsych-image-keyboard-response.js'></script>
+    <script src="js/plugins/jspsych/jspsych-survey-text.js"></script>
+    <script src="js/plugins/jspsych/jspsych-survey-multi-choice.js"></script>
+    <script src="js/plugins/jspsych/jspsych-survey-multi-choiceOLD.js"></script>
+    <script src="js/plugins/jspsych/jspsych-survey-multi-choice-en-reading-check.js"></script>
+    <script src="js/plugins/jspsych/jspsych-triads.js"></script>
+    <script src="js/plugins/jspsych/jspsych-survey-multi-select.js"></script>
+    <script src="js/plugins/jspsych/jspsych-survey-html-form.js"></script>
+    <script src="js/plugins/jspsych/jspsych-video-button-response.js"></script>
+    <script src = "js/plugins/jspsych/jspsych-konva-draw-circle.js"></script>
+    <script src='js/plugins/jspsych/jspsych-pen-choice.js'></script>
+    <script src="js/plugins/jspsych/jspsych-attribution.js"></script>
+    <script src="js/plugins/jspsych/jspsych-prolific-ID.js"></script>
+    <script src="js/plugins/jspsych/jspsych-html-audio-response.js"></script>
+    <script src="js/plugins/jspsych/jspsych-html-sliders-response.js"></script>
+    <script src="js/plugins/jspsych/jspsych-change-detection.js"></script>
+
+    <script src="js/plugins/jspsych/jspsych-demog-dropdown.js"></script>
+    <script src="js/plugins/jspsych/jspsych-demog-dropdown-audio.js"></script>
+    <script src="js/plugins/jspsych/jspsych-demog-free-response.js"></script>
+    <script src="js/plugins/jspsych/jspsych-demog-free-response-audio.js"></script>
+    <script src="js/plugins/jspsych/jspsych-demog-multi-choice.js"></script>
+    <script src="js/plugins/jspsych/jspsych-demog-multi-choice-audio.js"></script>
+    <script src="js/plugins/jspsych/jspsych-demog-multi-select.js"></script>
+    <script src="js/plugins/jspsych/jspsych-demog-multi-select-audio.js"></script>
+
+    <script src="js/plugins/jspsych/jspsych-funnel-debriefing-specific.js"></script>
+    <script src="js/plugins/jspsych/jspsych-funnel-debriefing-general.js"></script>
+    <script src="js/plugins/jspsych/jspsych-survey-likert.js"></script>
+    <script src="js/plugins/jspsych/jspsych-stickerchoice.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="css/jquery-ui.css" />
+    <link rel="stylesheet" type="text/css" href="css/jspsych.css" />
+    <link rel="stylesheet" type="text/css" href="css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="css/w3.css" />
+    <link rel="stylesheet" type="text/css" href="css/choices.min.css" />
+
+    <script> // loading
+        const langScript = document.createElement('script');
+        langScript.setAttribute('src', CN ? 'js/languages/mandarin.js' : 'js/languages/english.js');
+
+        const fullyLoaded = new Promise(resolve => {
+            langScript.addEventListener('load', () => {
+                if (onServer) { 
+                    resolve(); 
+                } else {
+                    const taskPromises = [];
+                    const taskJS = [
+                        
+                        "js/tasks/triads.js",
+                        "js/tasks/intuition_attribution.js",
+                       // "js/tasks/attribution_wave2.js",
+                        "js/tasks/free_description.js",
+                
+                        "js/tasks/rmts.js",
+                        "js/tasks/demog.js",
+                        "js/tasks/debrief.js",
+                        "js/tasks/stickers.js",
+                        ...kid ? [] : [                            
+                            "js/tasks/raven.js",
+                            "js/tasks/semantic_intuition.js",
+                            "js/tasks/change_detection.js",
+                            "js/tasks/sociogram.js"
+                        ],
+                    ]
+                    taskJS.forEach((scriptSrc) => {
+                        const script = document.createElement('script');
+                        script.setAttribute('src', scriptSrc);
+                        taskPromises.push(new Promise(resolve => {
+                            script.addEventListener('load', resolve);
+                        }));
+                        head.insertBefore(script, head.firstElementChild);
+                    });
+                    resolve(Promise.all(taskPromises));
+                }
+            });
+        });
+
+        const head = document.head;
+        head.insertBefore(langScript, head.firstElementChild);
+
+        async function loadMain() {
+            await fullyLoaded;
+            const mainScript = document.createElement('script');
+            mainScript.setAttribute('src','js/change_detection.js');
+            head.appendChild(mainScript);
+        }
+
+        loadMain();
+    </script>
+
+</head>
+
+<body></body>
+
+</html>
