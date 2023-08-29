@@ -11,6 +11,8 @@
     <script src="https://unpkg.com/@jspsych/plugin-survey-likert@1.1.2"></script>
     
 
+    <!-----Pavlovia----->
+    <script src="lib/jspsych-7-pavlovia-2022.1.1.js"></script>
     <!-----Style------>
     <link href="https://unpkg.com/jspsych@7.3.3/css/jspsych.css" rel="stylesheet" type="text/css" />
   </head>
@@ -41,9 +43,22 @@
     });
 
 
-    // Start experiment intro
+    // Start timeline
     var timeline = [];
 
+
+    // Pavlovia initialize
+    //var pavlovia_id = 's-' + section + '_p-' + subject_id + '_s-' + session_id;
+    var pavlovia_init = {
+        type: jsPsychPavlovia,
+         data: {
+             task: 'pavlovia-init'
+         },
+         command: "init"
+     };
+    timeline.push(pavlovia_init);
+
+    // Start experiment intro
     var welcome = {
         type:jsPsychHtmlKeyboardResponse,
         stimulus: 'Welcome to the experiment. Press any key to begin.'
@@ -115,6 +130,16 @@
       timeline.push(primingResp);
 
 
+
+    var pavlovia_finish = {
+        type: jsPsychPavlovia,
+        data: {
+               task: 'pavlovia-finish'
+         },
+         command: "finish",
+         //participantId: pavlovia_id
+    };
+    timeline.push(pavlovia_finish);
     // Run jsPsych timeline
     jsPsych.run(timeline);
 </script>
